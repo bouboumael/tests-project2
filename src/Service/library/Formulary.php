@@ -62,6 +62,12 @@ class Formulary
         }
     }
 
+    /**
+     * strlen if string or return int
+     *
+     * @param array $input
+     * @return integer
+     */
     private function countStringOrInteger(array $input): int
     {
         return is_string($input['inputValue']) ? strlen($input['inputValue']) : $input['inputValue'];
