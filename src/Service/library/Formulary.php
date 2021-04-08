@@ -44,7 +44,7 @@ class Formulary
      */
     private function limit(array $limit, array $testValues): void
     {
-        $value = $this->countStringOrInteger($testValues['inputValue']);
+        $value = $this->countStringOrInteger($testValues);
         $message = $testValues['startMessage'];
         if (isset($limit['min'])) {
             $min = $limit['min'];
@@ -62,8 +62,8 @@ class Formulary
         }
     }
 
-    private function countStringOrInteger($input): int
+    private function countStringOrInteger(array $input): int
     {
-        return is_string($input) ? strlen($input) : $input;
+        return is_string($input['inputValue']) ? strlen($input['inputValue']) : $input;
     }
 }
