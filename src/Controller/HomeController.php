@@ -9,6 +9,8 @@
 
 namespace App\Controller;
 
+use App\Service\library\Formulary;
+
 class HomeController extends AbstractController
 {
     /**
@@ -21,6 +23,14 @@ class HomeController extends AbstractController
      */
     public function index()
     {
+        $test = (new Formulary())->validateForm([
+            'name' => [],
+            'email' => [],
+            'adress' => []
+        ], [
+            'name' => 'test'
+        ]);
+        var_dump($test);
         return $this->twig->render('Home/index.html.twig');
     }
 }
