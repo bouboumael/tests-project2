@@ -64,6 +64,6 @@ class Formulary
 
     private function countStringOrInteger(array $input): int
     {
-        return is_string($input['inputValue']) ? strlen($input['inputValue']) : $input;
+        return is_string($input['inputValue']) ? strlen($input['inputValue']) : $input['inputValue'];
     }
 }
