@@ -5,71 +5,70 @@ namespace App\Service\library;
 class Formulary
 {
     private array $errors = [];
+    private array $form;
+    private array $required;
 
-    /**
-     * function for control formulary before send to database
-     *
-     * @param array $required (array with all controls)
-     * @param array $form (form to test)
-     * @return array (responses of tests)
-     */
-    public function validateForm(array $required, array $form): array
+    public function __construct(array $form, array $required)
+    {
+        $this->form = $form;
+        $this->required = $required;
+    }
+
+    public function validateForm(): array
     {
         $startMessage = 'Le champ ';
-        foreach ($form as $formInput => $inputValue) {
-            $startMessage .= $formInput . ' ';
-            if (!array_key_exists($formInput, $required)) {
-                $this->errors[] = $startMessage . 'n\'existe pas';
-            }
-            if (empty($form[$formInput])) {
-                $this->errors[] = $startMessage . 'ne doit pas être vide';
-            }
-            if (isset($required[$formInput]['limit'])) {
-                $this->limit($required[$formInput]['limit'], [
-                    'startMessage' => $startMessage,
-                    'inputValue' => $inputValue,
-                ]);
-            }
+        foreach ($this->form as $inputName => $inputValue) {
+            $startMessage .= $inputName . ' ';
+            $this->isInputExist($startMessage, $inputName);
+            $this->isEmpty($startMessage, $inputName);
+            $this->limit($startMessage, $inputName, $inputValue);
+
+            return $this->errors;
         }
 
         return $this->errors;
     }
 
-    /**
-     * fuction for test limit min or max value
-     *
-     * @param array $limit
-     * @param array $testValues
-     * @return void
-     */
-    private function limit(array $limit, array $testValues): void
+    private function limit(string $startMessage, string $inputName, $inputValue): void
     {
-        $value = $this->countStringOrInteger($testValues);
-        $message = $testValues['startMessage'];
-        if (isset($limit['min'])) {
-            $min = $limit['min'];
-            if ($value < $min) {
-                $message .= $message . 'doit avoir plus de ';
-                $this->errors[] = $message . $min . is_string($testValues['inputValue']) ? 'caractères' : '';
+        if (isset($this->required[$inputName]['limit'])) {
+            $limit = $this->required[$inputName]['limit'];
+            $value = $this->countStringOrInteger($inputValue);
+            if (isset($limit['min'])) {
+                $min = $limit['min'];
+                if ($value < $min) {
+                    $startMessage .= 'doit avoir plus de ' . $min;
+                    $startMessage .= is_string($inputValue) ? ' caractères' : '';
+                    $this->errors[] = $startMessage;
+                }
             }
-        }
-        if (isset($limit['max'])) {
-            $max = $limit['max'];
-            if ($value > $max) {
-                $message .= $message . 'doit avoir moins de ';
-                $this->errors[] = $message . $max . is_string($testValues['inputValue']) ? 'caractères' : '';
+            if (isset($limit['max'])) {
+                $max = $limit['max'];
+                if ($value > $max) {
+                    $startMessage .= 'doit avoir moins de ' . $max;
+                    $startMessage .= is_string($inputValue) ? ' caractères' : '';
+                    $this->errors[] = $startMessage;
+                }
             }
         }
     }
 
-    /**
-     * strlen if string or return int
-     *
-     * @param array $input
-     * @return integer
-     */
-    private function countStringOrInteger(array $input): int
+    private function countStringOrInteger($inputValue): int
     {
-        return is_string($input['inputValue']) ? strlen($input['inputValue']) : $input['inputValue'];
+        return is_string($inputValue) ? strlen($inputValue) : $inputValue;
+    }
+
+    private function isInputExist(string $startMessage, string $inputName): void
+    {
+        if (!array_key_exists($inputName, $this->required)) {
+            $this->errors[] = $startMessage . 'n\'existe pas';
+        }
+    }
+
+    private function isEmpty(string $startMessage, string $inputName): void
+    {
+        if (empty($this->form[$inputName])) {
+            $this->errors[] = $startMessage . 'ne doit pas être vide';
+        }
     }
 }

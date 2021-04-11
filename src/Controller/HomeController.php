@@ -23,14 +23,18 @@ class HomeController extends AbstractController
      */
     public function index()
     {
-        $test = (new Formulary())->validateForm([
-            'name' => [],
+        $errors = (new Formulary([
+            'name' => 'test'
+        ], [
+            'name' => ['limit' => [
+                'max' => 3
+            ]],
             'email' => [],
             'adress' => []
-        ], [
-            'name' => 'test'
+        ]))->validateForm();
+
+        return $this->twig->render('Home/index.html.twig', [
+            'errors' => $errors
         ]);
-        var_dump($test);
-        return $this->twig->render('Home/index.html.twig');
     }
 }
