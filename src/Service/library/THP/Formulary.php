@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\library;
+namespace App\Service\library\THP;
 
 class Formulary
 {
@@ -22,8 +22,8 @@ class Formulary
             $this->isInputExist($startMessage, $inputName);
             $this->isEmpty($startMessage, $inputName);
             $this->limit($startMessage, $inputName, $inputValue);
-
-            return $this->errors;
+            $this->filterVar($startMessage, $inputName, $inputValue);
+            $this->typeInputValue($startMessage, $inputName, $inputValue);
         }
 
         return $this->errors;
@@ -69,6 +69,24 @@ class Formulary
     {
         if (empty($this->form[$inputName])) {
             $this->errors[] = $startMessage . 'ne doit pas être vide';
+        }
+    }
+
+    private function typeInputValue ($startMessage, string $inputName, $inputValue): void
+    {
+        if (isset($this->required[$inputName]['type'])) {
+            if (gettype($inputValue) !== $this->required[$inputName]['type']) {
+                $this->errors[] = $startMessage . ' n\'est pas au bon format';
+            }
+        }
+    }
+
+    private function filterVar($startMessage, string $inputName, $inputValue): void
+    {
+        if (isset($this->required[$inputName]['filter_var'])){
+            if (filter_var($inputValue, $this->required[$inputName]['filter_var']) === false){
+                $this->errors[] = $startMessage . 'n\'a pas le bon format demandé.';
+            }
         }
     }
 }

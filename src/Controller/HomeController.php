@@ -9,7 +9,7 @@
 
 namespace App\Controller;
 
-use App\Service\library\Formulary;
+use App\Service\library\THP\Formulary;
 
 class HomeController extends AbstractController
 {
@@ -23,18 +23,29 @@ class HomeController extends AbstractController
      */
     public function index()
     {
-        $errors = (new Formulary([
-            'name' => 'test'
-        ], [
-            'name' => ['limit' => [
-                'max' => 3
-            ]],
-            'email' => [],
+        $form = [
+            'name' => 'Maël',
+            'email' => 'bouboumael@wanadoo.fr',
+        ];
+        $formData = [];
+        $errors = (new Formulary($form, [
+            'name' => [
+                'limit' => [
+                    'max' => 100
+                ],
+                'type' => 'string'
+            ],
+            'email' => ['filter_var' => FILTER_VALIDATE_EMAIL],
             'adress' => []
         ]))->validateForm();
 
+        if (empty($errors)) {
+            $formData = array_map('trim', $form);
+        }
+
         return $this->twig->render('Home/index.html.twig', [
-            'errors' => $errors
+            'errors' => $errors,
+            'formData' => $formData
         ]);
     }
 }
